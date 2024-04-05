@@ -1,0 +1,29 @@
+services:
+  crawler_postgres:
+    image: postgres:15
+    container_name: crawler_postgres
+    environment:
+      POSTGRES_DB: ${PG_DB:?error}
+      POSTGRES_USER: ${PG_USER:?error}
+      POSTGRES_PASSWORD: ${PG_PASS:?error}
+      PGPORT: ${PG_PORT:-5432}
+    ports:
+      - "${PG_PORT}:${PG_PORT}"
+    volumes:
+      - crawler-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB} -p ${PG_PORT}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
+
+#  crawler_rabbit:
+#    image: rabbitmq:3.13.1
+#    container_name: crawler_rabbit
+#    ports:
+#      - "15672:15672"
+#      - "5672:5672"
+
+volumes:
+  crawler-data:
