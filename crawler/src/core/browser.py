@@ -26,10 +26,10 @@ async def _headful_browser(playwright_context: Playwright) -> BrowserContext:
 async def browser_context() -> BrowserContext:
     async with async_playwright() as pw_context:
         browser = await _headless_browser(pw_context) if HEADLESS else await _headful_browser(pw_context)
-        logger.info('Browser created')
+        logger.info('Created browser')
         try:
-            logger.info('Browser opened')
+            logger.info('Opened browser')
             yield browser
         finally:
-            logger.info('Browser closed')
             await browser.close()
+            logger.info('Closed browser')
