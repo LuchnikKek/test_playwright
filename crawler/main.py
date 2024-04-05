@@ -8,21 +8,25 @@ from crawler.src.core.config import *
 from src.utils.bounded_task_group import BoundedTaskGroup
 
 
-async def parse(browser: BrowserContext, channel_link: str):
-
+async def parse(browser: BrowserContext, channel_link: str) -> set[str]:
+    """
+    Парсит страницу канала и возвращает все уникальные ссылки на видео.
+    :param browser: Объект браузера.
+    :param channel_link: Ссылка на канал.
+    :return: set() со всеми уникальными ссылками на странице канала.
+    """
     page = await browser.new_page()
 
     await page.goto(channel_link, wait_until='load')
     await page.wait_for_timeout(PAGE_ADDITIONAL_LOADING_TIME_MS)
-    # await wait_func(page)
 
     selectors = page.locator('css=a#thumbnail[href^="/watch?v="]')
-    count = await selectors.count()
-    hrefs = {await selectors.nth(i).get_attribute('href') for i in range(count)}
+    hrefs = await selectors.evaluate_all("list => list.map(element => element.href)")
+    unique_hrefs = {href for href in hrefs}
 
-    logger.info('All count: %s. Unique: %s.' % (count, len(hrefs)))
-
+    logger.info('Refs count: %s. Unique: %s.' % (len(hrefs), len(unique_hrefs)))
     await page.close()
+    return unique_hrefs
 
 
 async def stub_task(browser: BrowserContext):
