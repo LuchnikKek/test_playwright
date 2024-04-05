@@ -1,5 +1,5 @@
 import asyncio
-
+import re
 
 from playwright.async_api import BrowserContext
 
@@ -16,17 +16,19 @@ async def parse(browser: BrowserContext, channel_link: str) -> set[str]:
     :return: set() со всеми уникальными ссылками на странице канала.
     """
     page = await browser.new_page()
-
     await page.goto(channel_link, wait_until='load')
     await page.wait_for_timeout(PAGE_ADDITIONAL_LOADING_TIME_MS)
 
-    selectors = page.locator('css=a#thumbnail[href^="/watch?v="]')
-    hrefs = await selectors.evaluate_all("list => list.map(element => element.href)")
-    unique_hrefs = {href for href in hrefs}
+    link_locator = page.locator('css=a[href^="/watch?v="]')
+    dirty_links: list[str] = await link_locator.evaluate_all("list => list.map(element => element.href)")
 
-    logger.info('Refs count: %s. Unique: %s.' % (len(hrefs), len(unique_hrefs)))
+    url_pattern = re.compile('https:\/\/www\.youtube\.com\/watch\?v=[A-z0-9-_]{11}')  # noqa
+    clean_links = {*filter(lambda link: re.fullmatch(url_pattern, link), dirty_links)}
+
+    logger.info('Links found: %s.' % len(clean_links))
     await page.close()
-    return unique_hrefs
+
+    return clean_links
 
 
 async def stub_task(browser: BrowserContext):
