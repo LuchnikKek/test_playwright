@@ -1,7 +1,7 @@
 import asyncio
 
 from crawler.src.core.browser import browser_context
-from crawler.src.core.config import *
+from crawler.src.core.config import settings, logger
 from crawler.src.scraper import scrape_video_links
 from src.utils.bounded_task_group import BoundedTaskGroup
 
