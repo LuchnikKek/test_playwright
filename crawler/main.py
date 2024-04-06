@@ -1,37 +1,28 @@
 import asyncio
 
-from playwright.async_api import TimeoutError
+from playwright.async_api import TimeoutError, Page
 
 from crawler.src.core.browser import browser_context
 from crawler.src.core.config import settings, logger
 from crawler.src.scraper import scrape_video_ids
 
 
-async def worker(queue_in, queue_out):
-    async with browser_context() as browser:
-        page = await browser.new_page()
+async def worker(page: Page, queue_in: asyncio.Queue, queue_out: asyncio.Queue):
+    while True:
+        channel_link = await queue_in.get()
+        try:
+            await page.goto(channel_link)
+        except TimeoutError:
+            pass
+        await page.wait_for_timeout(settings.browser.PAGE_ADDITIONAL_LOADING_TIME_MS)
+        ids = await scrape_video_ids(page, channel_link)
 
-        while True:
-            channel_link = await queue_in.get()
-            try:
-                await page.goto(channel_link)
-            except TimeoutError:
-                pass
-            await page.wait_for_timeout(settings.browser.PAGE_ADDITIONAL_LOADING_TIME_MS)
-            ids = await scrape_video_ids(page, channel_link)
-
-            queue_out.put_nowait(ids)
-            logger.info(ids)
-            queue_in.task_done()
+        queue_out.put_nowait(ids)
+        logger.info(ids)
+        queue_in.task_done()
 
 
 async def main():
-    # async with browser_context() as browser:
-    #     tasks = [scrape_video_ids(browser, link) for link in links]
-    #     async with BoundedTaskGroup(max_tasks=settings.browser.MAX_PAGES) as tg:
-    #         results = [tg.create_task(task) for task in tasks]
-    # logger.info("Все задачи завершены. Количество: %s." % len(results))
-
     links = [
         'https://www.youtube.com/@raily',
         "https://www.youtube.com/@adorplayer",
@@ -44,17 +35,19 @@ async def main():
         "https://www.youtube.com/@diodand",
         "https://www.youtube.com/@nedohackerslite",
     ]
-    queue = asyncio.Queue()
+
+    input_queue = asyncio.Queue()
     for link in links:
-        queue.put_nowait(link)
+        input_queue.put_nowait(link)
 
     output_queue = asyncio.Queue()
 
-    page_workers = []
-    for i in range(settings.browser.MAX_PAGES):
-        page_worker = asyncio.create_task(worker(queue, output_queue))
+    async with browser_context() as browser:
+        async with asyncio.TaskGroup() as tg:
+            for i in range(settings.browser.MAX_PAGES):
+                page_workers = [tg.create_task(worker(await browser.new_page(), input_queue, output_queue))]
 
-    await queue.join()
+    await input_queue.join()
 
 
 if __name__ == '__main__':
