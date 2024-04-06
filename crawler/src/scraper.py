@@ -1,4 +1,4 @@
-from playwright.async_api import BrowserContext
+from playwright.async_api import BrowserContext, TimeoutError
 
 from crawler.src.core.config import settings, logger
 
@@ -40,11 +40,14 @@ async def scrape_video_ids(browser: BrowserContext, channel_link: str) -> list[s
     :return: ID всех видео на Главной странице канала.
     """
     page = await browser.new_page()
-    await page.goto(channel_link, wait_until='load')
+    try:
+        await page.goto(channel_link)
+    except TimeoutError:
+        pass
     await page.wait_for_timeout(settings.browser.PAGE_ADDITIONAL_LOADING_TIME_MS)
 
     video_ids = await _scrape_video_ids(page)
-    logger.info('Получено ID: %s.' % len(video_ids))
+    logger.info('По каналу %s получено %s ID.' % (channel_link, len(video_ids)))
 
     await page.close()
 
