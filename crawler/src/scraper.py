@@ -1,28 +1,51 @@
-import re
-
 from playwright.async_api import BrowserContext
 
 from crawler.src.core.config import settings, logger
 
 
-async def scrape_video_links(browser: BrowserContext, channel_link: str) -> set[str]:
+async def _format_video_selector() -> str:
+    """Форматирует селектор для получения коротких ссылок на видео.
+
+    preview_selector - Селектор для элемента-ссылки на preview.
+    content_selector - Селектор для элемента-ссылки на ролики из списков на главной.
     """
-    Скрапит все уникальные ссылки на видео на странице канала.
+    preview_selector = 'a.ytp-title-link[href]'
+    content_selector = 'a#video-title'
+
+    result_selector = f'css={preview_selector},{content_selector}'
+    return result_selector
+
+
+async def _scrape_video_ids(page) -> list[str]:
+    """Скрапит список video_id.
+
+    Получает короткие ссылки с помощью селектора.
+    Каждая обрезается до ID через JS.
+    """
+    selector = await _format_video_selector()
+    locator = page.locator(selector)
+
+    video_ids = await locator.evaluate_all("list => list.map(element => element.search.slice(3))")
+    unique_video_ids = list(set(video_ids))
+
+    return unique_video_ids
+
+
+async def scrape_video_ids(browser: BrowserContext, channel_link: str) -> list[str]:
+    """
+    Скрапит ID всех видео.
+
     :param browser: Объект браузера.
     :param channel_link: Ссылка на канал.
-    :return: set() со всеми уникальными ссылками на странице канала.
+    :return: ID всех видео на Главной странице канала.
     """
     page = await browser.new_page()
     await page.goto(channel_link, wait_until='load')
     await page.wait_for_timeout(settings.browser.PAGE_ADDITIONAL_LOADING_TIME_MS)
 
-    link_locator = page.locator('css=a[href^="/watch?v="]')
-    dirty_links: list[str] = await link_locator.evaluate_all("list => list.map(element => element.href)")
+    video_ids = await _scrape_video_ids(page)
+    logger.info('Получено ID: %s.' % len(video_ids))
 
-    url_pattern = re.compile("https://www\.youtube\.com/watch\?v=[A-z0-9-_]{11}")  # Паттерн url на видео  # noqa
-    clean_links = {*filter(lambda link: re.fullmatch(url_pattern, link), dirty_links)}
-
-    logger.info('Links found: %s.' % len(clean_links))
     await page.close()
 
-    return clean_links
+    return video_ids
