@@ -1,6 +1,6 @@
-from playwright.async_api import BrowserContext, TimeoutError
+from playwright.async_api import Page
 
-from crawler.src.core.config import settings, logger
+from crawler.src.core.config import logger
 
 
 async def _format_video_selector() -> str:
@@ -25,30 +25,22 @@ async def _scrape_video_ids(page) -> list[str]:
     selector = await _format_video_selector()
     locator = page.locator(selector)
 
-    video_ids = await locator.evaluate_all("list => list.map(element => element.search.slice(3))")
+    video_ids = await locator.evaluate_all("list => list.map(element => element.search.slice(3, 14))")
     unique_video_ids = list(set(video_ids))
 
     return unique_video_ids
 
 
-async def scrape_video_ids(browser: BrowserContext, channel_link: str) -> list[str]:
+async def scrape_video_ids(page: Page, channel_link: str) -> list[str]:
     """
     Скрапит ID всех видео.
 
-    :param browser: Объект браузера.
+    :param page: Объект страницы.
     :param channel_link: Ссылка на канал.
     :return: ID всех видео на Главной странице канала.
     """
-    page = await browser.new_page()
-    try:
-        await page.goto(channel_link)
-    except TimeoutError:
-        pass
-    await page.wait_for_timeout(settings.browser.PAGE_ADDITIONAL_LOADING_TIME_MS)
 
     video_ids = await _scrape_video_ids(page)
     logger.info('По каналу %s получено %s ID.' % (channel_link, len(video_ids)))
-
-    await page.close()
 
     return video_ids
