@@ -1,5 +1,7 @@
 import asyncio
 
+import aio_pika
+
 from crawler.src.core.browser import browser_context
 from crawler.src.core.config import settings
 from crawler.src.worker import worker
@@ -10,11 +12,13 @@ async def main():
     input_queue = asyncio.Queue()
     send_links(input_queue)
 
-    output_queue = asyncio.Queue()
+    rabbit_connection = await aio_pika.connect_robust("amqp://guest:guest@localhost/")
 
-    async with browser_context() as browser, asyncio.TaskGroup() as tg:
+    async with browser_context() as browser, asyncio.TaskGroup() as tg, rabbit_connection:
         for i in range(settings.browser.MAX_PAGES):
-            page_workers = [tg.create_task(worker(await browser.new_page(), input_queue, output_queue))]
+            page = await browser.new_page()
+            channel = await rabbit_connection.channel()
+            tg.create_task(worker(page, input_queue, channel))
 
     await input_queue.join()
 

@@ -18,12 +18,12 @@ services:
       retries: 5
     restart: on-failure
 
-#  crawler_rabbit:
-#    image: rabbitmq:3.13.1
-#    container_name: crawler_rabbit
-#    ports:
-#      - "15672:15672"
-#      - "5672:5672"
+  crawler_rabbit:
+    image: rabbitmq:3.13.1
+    container_name: crawler_rabbit
+    ports:
+      - "15672:15672"
+      - "5672:5672"
 
 volumes:
   crawler-data:
