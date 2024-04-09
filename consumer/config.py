@@ -15,6 +15,7 @@ class _PostgresSettings(BaseSettings):
     PASS: str
     HOST: str
     PORT: int
+    VIDEOS_TABLE: str
 
     @computed_field
     @property

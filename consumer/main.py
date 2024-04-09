@@ -3,29 +3,33 @@ import asyncio
 import aio_pika
 import msgspec
 
+from config import settings
+from database.loader import init_db, load_to_db
+
 
 async def on_message(message: aio_pika.abc.AbstractIncomingMessage) -> None:
     """Обработчик сообщений."""
     async with message.process():
-        msg_body = msgspec.json.decode(message.body)
-        print("Received message body: %s" % msg_body)
+        username: str = message.headers.get('username')
+        video_ids: list[str] = msgspec.json.decode(message.body)
 
-        msg_headers = message.headers
-        print("Received message headers: %s" % msg_headers)
+    await load_to_db(username, video_ids)
 
 
 async def main() -> None:
-    """Функция запуска Consumer'а сообщений."""
-    connection = await aio_pika.connect_robust("amqp://guest:guest@localhost/")
+    """Точка входа загрузчика сообщений из топика в базу."""
+    await init_db()
 
-    channel = await connection.channel()
-    queue = await channel.declare_queue('video_ids', durable=True)
+    rabbit_conn = await aio_pika.connect_robust(settings.rabbit.DSN)
+    rabbit_channel = await rabbit_conn.channel()
+
+    queue = await rabbit_channel.declare_queue(settings.rabbit.TOPIC, durable=True)
     await queue.consume(callback=on_message)
 
     try:
         await asyncio.Future()
     finally:
-        await connection.close()
+        await rabbit_conn.close()
 
 
 if __name__ == "__main__":
