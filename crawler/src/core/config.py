@@ -16,6 +16,7 @@ class _BrowserSettings(BaseSettings):
     SCREEN_WIDTH: int
     SCREEN_HEIGHT: int
     USERAGENT: str
+    REQUEST_ABORTION_CODE: str
 
     model_config = SettingsConfigDict(env_prefix='BROWSER_', env_file=ENV_PATH, extra='ignore')
 

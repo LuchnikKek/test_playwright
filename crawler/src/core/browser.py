@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from playwright.async_api import Playwright, BrowserContext, async_playwright
+from playwright.async_api import Playwright, BrowserContext, async_playwright, Route
 
 from crawler.src.core.config import settings, logger
 
@@ -21,10 +21,18 @@ async def _headful_browser(playwright_context: Playwright) -> BrowserContext:
     return browser
 
 
+async def _abort_handler(route: Route):
+    logger.debug('Aborted request to %s.' % route.request.url)
+    await route.abort(settings.browser.REQUEST_ABORTION_CODE)
+
+
 @asynccontextmanager
 async def browser_context() -> BrowserContext:
     async with async_playwright() as context:
         browser = await _headless_browser(context) if settings.browser.HEADLESS else await _headful_browser(context)
+
+        await browser.route("**/{play,accounts}.google.com/**", _abort_handler)
+
         try:
             logger.info('Открыл браузер.')
             yield browser
