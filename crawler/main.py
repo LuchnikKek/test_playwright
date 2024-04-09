@@ -12,14 +12,13 @@ async def main():
     input_queue = asyncio.Queue()
     send_links(input_queue)
 
-    rabbit_connection = await aio_pika.connect_robust("amqp://guest:guest@localhost/")
+    rabbit_connection = await aio_pika.connect_robust(settings.rabbit.DSN)
 
-    async with rabbit_connection:
+    async with rabbit_connection.channel() as channel:
         async with browser_context() as browser:
             async with asyncio.TaskGroup() as tg:
                 for i in range(settings.browser.MAX_PAGES):
                     page = await browser.new_page()
-                    channel = await rabbit_connection.channel()
 
                     tg.create_task(worker(page, input_queue, channel))
 

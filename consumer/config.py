@@ -4,23 +4,25 @@ from pathlib import Path
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT_PATH: Path = Path(__file__).parent.parent.parent.parent
+ROOT_PATH: Path = Path(__file__).parent.parent
 ENV_PATH: Path = ROOT_PATH / ".env"
 
 
-class _BrowserSettings(BaseSettings):
-    """Конфиг браузера для PlayWright."""
-    HEADLESS: bool
-    MAX_PAGES: int
-    PAGE_ADDITIONAL_LOADING_TIME_MS: int
-    VIEWPORT_WIDTH: int
-    VIEWPORT_HEIGHT: int
-    SCREEN_WIDTH: int
-    SCREEN_HEIGHT: int
-    USERAGENT: str
-    REQUEST_ABORTION_CODE: str
+class _PostgresSettings(BaseSettings):
+    """Конфиг PostgreSQL."""
+    DB: str
+    USER: str
+    PASS: str
+    HOST: str
+    PORT: int
 
-    model_config = SettingsConfigDict(env_prefix='BROWSER_', env_file=ENV_PATH, extra='ignore')
+    @computed_field
+    @property
+    def DSN(self) -> str:  # noqa
+        """Строка подключения. Пример: 'postgres://user:password@host:port/database'."""
+        return f'postgres://{self.USER}:{self.PASS}@{self.HOST}:{self.PORT}/{self.DB}'
+
+    model_config = SettingsConfigDict(env_prefix='PG_', env_file=ENV_PATH, extra='ignore')
 
 
 class _RabbitSettings(BaseSettings):
@@ -41,7 +43,7 @@ class _RabbitSettings(BaseSettings):
 
 
 class _LoggerSettings(BaseSettings):
-    """Конфиг логгера."""
+    """Конфиг Логгера."""
     FORMAT: str
     LEVEL: str
 
@@ -51,9 +53,9 @@ class _LoggerSettings(BaseSettings):
 class _Settings(BaseSettings):
     """
     Основной конфиг приложения.
-    Доступен через экземпляр settings.
+    Получение через экземпляр settings.
     """
-    browser: _BrowserSettings = _BrowserSettings()
+    postgres: _PostgresSettings = _PostgresSettings()
     logger: _LoggerSettings = _LoggerSettings()
     rabbit: _RabbitSettings = _RabbitSettings()
 
@@ -62,5 +64,7 @@ class _Settings(BaseSettings):
 
 settings = _Settings()
 
-logger = logging.getLogger('crawler')
+logger = logging.getLogger('consumer')
 logging.basicConfig(format=settings.logger.FORMAT, level=settings.logger.LEVEL)
+
+logger.info(settings)

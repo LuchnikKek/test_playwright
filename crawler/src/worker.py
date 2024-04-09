@@ -11,8 +11,6 @@ from crawler.src.utils.parse_username import parse_username
 
 
 async def worker(page: Page, queue_in: asyncio.Queue, output_channel: AbstractRobustChannel):
-    output_queue_name = 'video_ids'
-
     while True:
         channel_link = await queue_in.get()
         try:
@@ -29,7 +27,7 @@ async def worker(page: Page, queue_in: asyncio.Queue, output_channel: AbstractRo
             delivery_mode=aio_pika.DeliveryMode.PERSISTENT
         )
 
-        await output_channel.default_exchange.publish(msg, routing_key=output_queue_name)
+        await output_channel.default_exchange.publish(msg, routing_key=settings.rabbit.TOPIC)
 
-        logger.info('По каналу %s получено %s ID.' % (channel_link, len(video_ids)))
+        logger.info('По каналу %s получено %s ID.' % (msg.headers.get('username'), len(video_ids)))
         queue_in.task_done()
