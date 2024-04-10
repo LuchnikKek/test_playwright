@@ -3,20 +3,20 @@ import asyncio
 import aio_pika
 import msgspec
 
-from config import settings
-from database.loader import init_db, load_to_db
+from consumer.config import settings
+from consumer.database.loader import init_db, load_to_db
 
 
 async def on_message(message: aio_pika.abc.AbstractIncomingMessage) -> None:
     """Обработчик сообщений."""
     async with message.process():
-        username: str = message.headers.get('username')
+        username: str = message.headers.get("username")
         video_ids: list[str] = msgspec.json.decode(message.body)
 
     await load_to_db(username, video_ids)
 
 
-async def main() -> None:
+async def run() -> None:
     """Точка входа загрузчика сообщений из топика в базу."""
     await init_db()
 
@@ -33,4 +33,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run())

@@ -22,12 +22,12 @@ async def worker(page: Page, queue_in: asyncio.Queue, output_channel: AbstractRo
         video_ids = await scrape_video_ids(page)
 
         msg = aio_pika.Message(
-            headers={'username': parse_username(channel_link)},
+            headers={"username": parse_username(channel_link)},
             body=msgspec.json.encode(video_ids),
-            delivery_mode=aio_pika.DeliveryMode.PERSISTENT
+            delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
         )
 
         await output_channel.default_exchange.publish(msg, routing_key=settings.rabbit.TOPIC)
 
-        logger.info('По каналу %s получено %s ID.' % (msg.headers.get('username'), len(video_ids)))
+        logger.info("По каналу %s получено %s ID." % (msg.headers.get("username"), len(video_ids)))
         queue_in.task_done()

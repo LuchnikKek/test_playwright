@@ -8,7 +8,8 @@ from crawler.src.worker import worker
 from crawler.write_links import send_links
 
 
-async def main():
+async def run():
+    """Точка входа сборщика данных по каналам."""
     input_queue = asyncio.Queue()
     send_links(input_queue)
 
@@ -25,5 +26,5 @@ async def main():
     await input_queue.join()
 
 
-if __name__ == '__main__':
-    asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(run())

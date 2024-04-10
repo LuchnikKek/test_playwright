@@ -1,3 +1,11 @@
+__all__ = [
+    "CREATE_VIDEOS_TABLE",
+    "CREATE_UPDATE_FUNCTION",
+    "CREATE_VIDEOS_TABLE_TRIGGER",
+    "CREATE_TEMP_TABLE",
+    "INSERT_TEMP_TABLE_TO_MAIN",
+]
+
 """
 Базовая таблица
 """

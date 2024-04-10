@@ -7,10 +7,10 @@ async def _format_video_selector() -> str:
     preview_selector - Селектор для элемента-ссылки на preview.
     content_selector - Селектор для элемента-ссылки на ролики из списков на главной.
     """
-    preview_selector = 'a.ytp-title-link[href]'
-    content_selector = 'ytd-item-section-renderer.style-scope a#video-title'
+    preview_selector = "a.ytp-title-link[href]"
+    content_selector = "ytd-item-section-renderer.style-scope a#video-title"
 
-    result_selector = f'css={preview_selector},{content_selector}'
+    result_selector = f"css={preview_selector},{content_selector}"
     return result_selector
 
 
