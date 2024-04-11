@@ -10,6 +10,7 @@ services:
     ports:
       - "${PG_PORT}:${PG_PORT}"
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - crawler-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB} -p ${PG_PORT}" ]
@@ -24,6 +25,12 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
 
 volumes:
   crawler-data:

@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from pydantic import computed_field
+from pydantic import computed_field, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_PATH: Path = Path(__file__).parent.parent
@@ -63,13 +63,14 @@ class _Settings(BaseSettings):
     postgres: _PostgresSettings = _PostgresSettings()
     logger: _LoggerSettings = _LoggerSettings()
     rabbit: _RabbitSettings = _RabbitSettings()
+    MAX_WORKERS: int = Field(alias="BROWSER_MAX_WORKERS")
 
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
 
 settings = _Settings()
 
-logger = logging.getLogger("consumer")
+logger = logging.getLogger("loader")
 logging.basicConfig(format=settings.logger.FORMAT, level=settings.logger.LEVEL)
 
 logger.info(settings)

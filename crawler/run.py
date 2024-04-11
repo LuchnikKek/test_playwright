@@ -18,7 +18,7 @@ async def run():
     async with rabbit_connection.channel() as channel:
         async with browser_context() as browser:
             async with asyncio.TaskGroup() as tg:
-                for i in range(settings.browser.MAX_PAGES):
+                for i in range(settings.browser.MAX_WORKERS):
                     page = await browser.new_page()
 
                     tg.create_task(worker(page, input_queue, channel))

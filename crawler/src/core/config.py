@@ -12,7 +12,7 @@ class _BrowserSettings(BaseSettings):
     """Конфиг браузера для PlayWright."""
 
     HEADLESS: bool
-    MAX_PAGES: int
+    MAX_WORKERS: int
     PAGE_ADDITIONAL_LOADING_TIME_MS: int
     VIEWPORT_WIDTH: int
     VIEWPORT_HEIGHT: int
