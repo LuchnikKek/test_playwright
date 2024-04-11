@@ -1,42 +1,40 @@
 from playwright.async_api import Page
 
 
-async def _format_video_selector() -> str:
-    """Форматирует селектор для получения коротких ссылок на видео.
+async def scrape_video_ids(page: Page) -> list[str]:
+    """Скрапит ID всех видео со страницы.
 
-    preview_selector - Селектор для элемента-ссылки на preview.
-    content_selector - Селектор для элемента-ссылки на ролики из списков на главной.
+    Args:
+        page: Объект страницы.
+    Returns:
+        video_ids: Список со всеми уникальными ID видео на странице. Только ID, без параметра "v=".
     """
-    preview_selector = "a.ytp-title-link[href]"
-    content_selector = "ytd-item-section-renderer.style-scope a#video-title"
+    videos_locator = page.locator(_videos_selector())
+    js_query = _videos_to_ids_js_query()
+    video_ids = await videos_locator.evaluate_all(expression=js_query)
 
-    result_selector = f"css={preview_selector},{content_selector}"
-    return result_selector
-
-
-async def _scrape_video_ids(page) -> list[str]:
-    """Скрапит список video_id.
-
-    Получает короткие ссылки с помощью селектора.
-    Каждая обрезается до ID через JS.
-    """
-    selector = await _format_video_selector()
-    locator = page.locator(selector)
-
-    video_ids = await locator.evaluate_all("list => list.map(element => element.search.slice(3, 14))")
     unique_video_ids = list(set(video_ids))
 
     return unique_video_ids
 
 
-async def scrape_video_ids(page: Page) -> list[str]:
+def _videos_selector() -> str:
+    """Возвращает селектор для получения всех видео.
+
+    На странице канала есть списки со всеми роликами.
+    Но тот, что проигрывается при открытии канала имеет другой селектор.
+    Функция возвращает общий селектор для списков роликов + ролика при открытии канала.
     """
-    Скрапит ID всех видео.
+    video_playlists_selector = "ytd-item-section-renderer.style-scope a#video-title"
+    video_preview_selector = "a.ytp-title-link[href]"
+    return "css=%s,%s" % (video_preview_selector, video_playlists_selector)
 
-    :param page: Объект страницы.
-    :return: ID всех видео на Главной странице канала.
+
+def _videos_to_ids_js_query() -> str:
+    """Возвращает JS-запрос для получения списка id видео из списка элементов.
+
+    Поле .search для каждого элемента построено по принципу:
+    '?v={video_id}[иногда дополнительные параметры]'
+    Указанный запрос вырезает video_id для всех элементов.
     """
-
-    video_ids = await _scrape_video_ids(page)
-
-    return video_ids
+    return "list => list.map(element => element.search.slice(3, 14))"

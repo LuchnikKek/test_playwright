@@ -9,7 +9,7 @@ ENV_PATH: Path = ROOT_PATH / ".env"
 
 
 class _BrowserSettings(BaseSettings):
-    """Конфиг браузера для PlayWright."""
+    """Конфиг браузера для Playwright."""
 
     HEADLESS: bool
     MAX_WORKERS: int
@@ -43,7 +43,7 @@ class _RabbitSettings(BaseSettings):
 
 
 class _LoggerSettings(BaseSettings):
-    """Конфиг логгера."""
+    """Конфиг Логгера."""
 
     FORMAT: str
     LEVEL: str

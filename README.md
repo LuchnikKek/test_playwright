@@ -1,4 +1,4 @@
-# Тестовое задание (Playwright, RabbitMQ)
+# Тестовое задание (Playwright, RabbitMQ, PostgreSQL)
 
 Парсер видео с каналов YouTube.
 
