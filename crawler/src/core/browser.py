@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from playwright.async_api import Playwright, BrowserContext, async_playwright, Route
 
-from crawler.src.core.config import settings, logger
+from src.core.config import settings, logger
 
 
 async def _headless_browser(playwright_context: Playwright) -> BrowserContext:

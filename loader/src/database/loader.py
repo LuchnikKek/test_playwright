@@ -1,6 +1,7 @@
-import database.queries as db_queries
+import src.database.queries as db_queries
+from src.core.config import logger
+
 from asyncpg import Pool
-from config import logger
 
 
 async def load_to_db(pool: Pool, username: str, video_ids: list[str]) -> None:
@@ -12,4 +13,4 @@ async def load_to_db(pool: Pool, username: str, video_ids: list[str]) -> None:
             await connection.execute(db_queries.CREATE_VIDEOS_TEMP_TABLE)
             await connection.copy_records_to_table("_temp_videos_table", records=records, columns=columns)
             result = await connection.execute(db_queries.MERGE_VIDEOS_TEMP_TABLE_TO_MAIN)
-        logger.debug(result)
+        logger.info(result)

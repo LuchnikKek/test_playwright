@@ -17,4 +17,6 @@ FROM build AS app
 COPY --from=build /opt/loader /opt/loader
 COPY . .
 
-ENTRYPOINT [ "python", "run.py" ]
+RUN chmod +x /opt/loader/entrypoint.sh
+
+ENTRYPOINT ["/opt/loader/entrypoint.sh"]

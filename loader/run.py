@@ -4,8 +4,8 @@ import aio_pika
 import asyncpg
 import msgspec
 
-from config import settings
-from database.loader import load_to_db
+from src.core.config import settings
+from src.database.loader import load_to_db
 
 
 async def on_message(message: aio_pika.abc.AbstractIncomingMessage, pool: asyncpg.Pool) -> None:
@@ -18,7 +18,7 @@ async def on_message(message: aio_pika.abc.AbstractIncomingMessage, pool: asyncp
 
 
 async def run() -> None:
-    """Точка входа загрузчика сообщений из топика в базу."""
+    """Точка входа Загрузчика сообщений из топика в базу."""
     db_pool = await asyncpg.create_pool(dsn=settings.postgres.DSN, min_size=1, max_size=settings.MAX_WORKERS)
 
     rabbit_conn = await aio_pika.connect_robust(settings.rabbit.DSN)

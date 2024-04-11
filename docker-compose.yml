@@ -1,4 +1,26 @@
 services:
+  loader_app:
+    build: ./loader
+    container_name: loader_app
+    env_file:
+      - .env
+    depends_on:
+      crawler_postgres:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+
+  crawler_app:
+    build: ./crawler
+    container_name: crawler_app
+    env_file:
+      - .env
+    depends_on:
+      crawler_postgres:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+
   crawler_postgres:
     image: postgres:15
     container_name: crawler_postgres
@@ -19,7 +41,7 @@ services:
       retries: 5
     restart: on-failure
 
-  crawler_rabbit:
+  rabbit:
     image: rabbitmq:3.13.1
     container_name: crawler_rabbit
     ports:
@@ -31,17 +53,6 @@ services:
       timeout: 5s
       retries: 5
     restart: on-failure
-
-  loader_app:
-    build: ./loader
-    container_name: loader_app
-    env_file:
-      - .env
-    depends_on:
-      crawler_postgres:
-        condition: service_healthy
-      crawler_rabbit:
-        condition: service_healthy
 
 
 volumes:

@@ -5,9 +5,9 @@ import msgspec
 from aio_pika.abc import AbstractRobustChannel
 from playwright.async_api import Page, TimeoutError
 
-from crawler.src.components.scraper import scrape_video_ids
-from crawler.src.core.config import settings, logger
-from crawler.src.utils.parse_username import parse_username
+from src.components.scraper import scrape_video_ids
+from src.core.config import settings, logger
+from src.utils.parse_username import parse_username
 
 
 async def worker(page: Page, queue_in: asyncio.Queue, output_channel: AbstractRobustChannel):

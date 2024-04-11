@@ -2,10 +2,10 @@ import asyncio
 
 import aio_pika
 
-from crawler.src.core.browser import browser_context
-from crawler.src.core.config import settings
-from crawler.src.worker import worker
-from crawler.write_links import send_links
+from src.core.browser import browser_context
+from src.core.config import settings
+from src.core.worker import worker
+from write_links import send_links
 
 
 async def run():
