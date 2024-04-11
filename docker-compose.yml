@@ -32,5 +32,17 @@ services:
       retries: 5
     restart: on-failure
 
+  loader_app:
+    build: ./loader
+    container_name: loader_app
+    env_file:
+      - .env
+    depends_on:
+      crawler_postgres:
+        condition: service_healthy
+      crawler_rabbit:
+        condition: service_healthy
+
+
 volumes:
   crawler-data:
