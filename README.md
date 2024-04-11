@@ -1,4 +1,5 @@
 # Тестовое задание (Playwright, RabbitMQ, PostgreSQL)
+[![wakatime](https://wakatime.com/badge/user/018e8fb5-7be6-4f41-898e-399f4cc09b49/project/018ea9e5-2256-47dd-8671-842ca382e8e0.svg)](https://wakatime.com/badge/user/018e8fb5-7be6-4f41-898e-399f4cc09b49/project/018ea9e5-2256-47dd-8671-842ca382e8e0)
 
 Парсер видео с каналов YouTube.
 
