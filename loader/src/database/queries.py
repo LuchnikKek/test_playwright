@@ -1,7 +1,7 @@
-__all__ = [
-    "CREATE_VIDEOS_TEMP_TABLE",
-    "MERGE_VIDEOS_TEMP_TABLE_TO_MAIN",
-]
+"""
+Используемые сырые запросы к PostgreSQL.
+"""
+
 
 CREATE_VIDEOS_TEMP_TABLE = """
     CREATE TEMP TABLE _temp_videos_table (
