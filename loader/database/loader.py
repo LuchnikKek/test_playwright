@@ -1,7 +1,6 @@
+import database.queries as db_queries
 from asyncpg import Pool
-
-import loader.database.queries as db_queries
-from loader.config import logger
+from config import logger
 
 
 async def load_to_db(pool: Pool, username: str, video_ids: list[str]) -> None:

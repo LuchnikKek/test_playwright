@@ -4,8 +4,8 @@ import aio_pika
 import asyncpg
 import msgspec
 
-from loader.config import settings
-from loader.database.loader import load_to_db
+from config import settings
+from database.loader import load_to_db
 
 
 async def on_message(message: aio_pika.abc.AbstractIncomingMessage, pool: asyncpg.Pool) -> None:
