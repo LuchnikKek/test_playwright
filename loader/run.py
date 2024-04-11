@@ -28,7 +28,7 @@ async def run() -> None:
     После открытия всех соединений, указывает Consumer'у очереди, callback-функцию on_message().
     Очередное сообщение вместе с пулом соединений будут поступать в этот callback.
     """
-    db_pool = await asyncpg.create_pool(dsn=settings.postgres.DSN, min_size=1, max_size=settings.MAX_WORKERS)
+    db_pool = await asyncpg.create_pool(dsn=settings.postgres.DSN, min_size=1, max_size=settings.MAX_WORKERS + 1)
 
     rabbit_conn = await aio_pika.connect_robust(settings.rabbit.DSN)
     rabbit_channel = await rabbit_conn.channel()

@@ -2,10 +2,10 @@
 
 wait_for_rabbit() {
     until nc -z "${RABBIT_HOST}" 5672; do
-        echo "Ожидание доступности RabbitMQ..."
+        echo "Crawler: Ожидание доступности RabbitMQ..."
         sleep 1
     done
-    echo "RabbitMQ доступен."
+    echo "Crawler: RabbitMQ доступен."
 }
 
 wait_for_rabbit

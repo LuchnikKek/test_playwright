@@ -4,6 +4,7 @@ services:
     container_name: loader_app
     env_file:
       - .env
+      - .env.docker
     depends_on:
       crawler_postgres:
         condition: service_healthy
@@ -15,6 +16,7 @@ services:
     container_name: crawler_app
     env_file:
       - .env
+      - .env.docker
     depends_on:
       crawler_postgres:
         condition: service_healthy
