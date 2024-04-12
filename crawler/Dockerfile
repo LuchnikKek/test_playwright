@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y netcat-openbsd curl
 COPY requirements.txt ./
 
 RUN python -m pip install --no-cache-dir -r requirements.txt \
-    && playwright install --with-deps
+    && playwright install chromium --with-deps
 
 COPY . .
 

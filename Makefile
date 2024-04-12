@@ -29,7 +29,7 @@ up: up_loader up_crawler
 Количество новых вставленных записей можно видеть в логах "MERGE 0 N".
 local: up_loader
 	poetry install --no-root -n --without=dev \
-	&& playwright install \
+	&& playwright install chromium \
 	&& export RABBIT_HOST="localhost" \
 	&& cd crawler \
 	&& poetry run sh ./entrypoint.sh
@@ -37,11 +37,3 @@ local: up_loader
 
 # Запуск Crawler ЛОКАЛЬНО и Loader в Докере С ОЧИСТКОЙ бд.
 local_clean: down local
-
-
-
-
-
-
-
-

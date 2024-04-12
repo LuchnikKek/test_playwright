@@ -4,7 +4,7 @@
 
 Стек:
 - Python 3.11.
-- Управление браузером: Playwright (асинхронный api).
+- Управление браузером: Playwright+Chromium (асинхронный api).
 - Хранилище: PostgreSQL (asyncpg).
 - Брокер очередей: RabbitMQ (aio-pika).
 - Запуск: Docker, Docker-compose.
